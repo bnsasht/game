@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EyeQ</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- HOME -->
+  <div id="screen-home" class="screen active">
+    <div id="home-content">
+      <h1 class="logo">EyeQ</h1>
+      <p class="tagline">Spot the difference</p>
+      <button class="btn-primary" onclick="showScreen('screen-worlds')">Play</button>
+      <button class="btn-secondary" onclick="openShop()">🪙 Buy Coins</button>
+      <div class="coin-bar"><span>🪙</span><span id="home-coins">0</span></div>
+    </div>
+  </div>
+
+  <!-- WORLD SELECT -->
+  <div id="screen-worlds" class="screen">
+    <div class="screen-header">
+      <button class="btn-back" onclick="showScreen('screen-home')">← Back</button>
+      <h2>Choose a World</h2>
+      <div class="coin-bar"><span>🪙</span><span id="worlds-coins">0</span></div>
+    </div>
+    <div id="worlds-grid"></div>
+  </div>
+
+  <!-- LEVEL SELECT -->
+  <div id="screen-levels" class="screen">
+    <div class="screen-header">
+      <button class="btn-back" onclick="showScreen('screen-worlds')">← Back</button>
+      <h2 id="level-select-title"></h2>
+      <div class="coin-bar"><span>🪙</span><span id="levels-coins">0</span></div>
+    </div>
+    <div id="levels-grid"></div>
+  </div>
+
+  <!-- GAME -->
+  <div id="screen-game" class="screen">
+    <div id="hud">
+      <span id="hud-level">Level 1</span>
+      <span id="hud-timer">⏱ 60s</span>
+      <span id="hud-coins">🪙 0</span>
+    </div>
+    <div id="powerups">
+      <button onclick="useFreeze()">❄️ Freeze <small>(10🪙)</small></button>
+      <button onclick="useSkip()">⏭ Skip <small>(20🪙)</small></button>
+      <button onclick="openShop()">+ Coins</button>
+    </div>
+    <div id="image-area">
+      <div class="img-wrap">
+        <img id="img-left" src="" alt="Original" />
+        <div id="markers-left" class="markers"></div>
+      </div>
+      <div class="img-wrap">
+        <img id="img-right" src="" alt="Find differences" />
+        <div id="markers-right" class="markers"></div>
+      </div>
+    </div>
+    <p id="found-label">Found: 0 / 0</p>
+  </div>
+
+  <!-- LEVEL WIN -->
+  <div id="screen-win" class="screen">
+    <div class="result-box">
+      <h2>🎉 Level Complete!</h2>
+      <p id="win-msg"></p>
+      <button class="btn-primary" onclick="nextLevel()">Next Level →</button>
+      <button class="btn-secondary" onclick="showScreen('screen-worlds')">World Map</button>
+    </div>
+  </div>
+
+  <!-- GAME OVER -->
+  <div id="screen-lose" class="screen">
+    <div class="result-box">
+      <h2>⏰ Time's Up!</h2>
+      <p>Better luck next time</p>
+      <button class="btn-primary" onclick="retryLevel()">Try Again</button>
+      <button class="btn-secondary" onclick="showScreen('screen-worlds')">World Map</button>
+    </div>
+  </div>
+
+  <!-- SHOP OVERLAY -->
+  <div id="shop-overlay" class="overlay hidden">
+    <div class="overlay-box">
+      <h2>🪙 Buy Coins</h2>
+      <div class="shop-options">
+        <div class="shop-item" onclick="buyCoin(100, '0.99')">
+          <span class="shop-amount">100</span>
+          <span class="shop-label">coins</span>
+          <span class="shop-price">$0.99</span>
+        </div>
+        <div class="shop-item featured" onclick="buyCoin(500, '3.99')">
+          <span class="shop-badge">Best Value</span>
+          <span class="shop-amount">500</span>
+          <span class="shop-label">coins</span>
+          <span class="shop-price">$3.99</span>
+        </div>
+        <div class="shop-item" onclick="buyCoin(1200, '7.99')">
+          <span class="shop-amount">1200</span>
+          <span class="shop-label">coins</span>
+          <span class="shop-price">$7.99</span>
+        </div>
+      </div>
+      <button class="btn-secondary" onclick="closeShop()">Close</button>
+    </div>
+  </div>
+
+  <!-- UNLOCK OVERLAY -->
+  <div id="unlock-overlay" class="overlay hidden">
+    <div class="overlay-box">
+      <h2 id="unlock-title"></h2>
+      <p id="unlock-desc"></p>
+      <div class="unlock-options">
+        <button class="btn-primary" id="unlock-coins-btn" onclick="unlockWithCoins()"></button>
+        <button class="btn-gold" id="unlock-money-btn" onclick="unlockWithMoney()"></button>
+      </div>
+      <button class="btn-secondary" onclick="closeUnlock()">Cancel</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
