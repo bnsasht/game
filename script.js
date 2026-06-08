@@ -1,6 +1,5 @@
 // ── HOME ANIMATION ─────────────────────────────
 function initHome() {
-  // Cursor
   const cursor = document.getElementById('cursor');
   const trail  = document.getElementById('cursor-trail');
   if (cursor) {
@@ -12,7 +11,6 @@ function initHome() {
     });
   }
 
-  // Canvas particle background
   const canvas = document.getElementById('bg-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -56,7 +54,6 @@ function initHome() {
   }
   draw();
 
-  // Floating circles
   function spawnCircle(){
     const el=document.createElement('div'); el.className='diff-circle';
     const s=20+Math.random()*60;
@@ -69,7 +66,6 @@ function initHome() {
   for(let i=0;i<6;i++) setTimeout(spawnCircle,i*400);
   setInterval(spawnCircle,1400);
 
-  // Hover sounds on home buttons
   document.querySelectorAll('.btn-play,.btn-shop').forEach(b =>
     b.addEventListener('mouseenter', playHover));
 }
@@ -136,7 +132,138 @@ function playTimerWarning(){
   o.start(); o.stop(ac.currentTime+0.1);
 }
 
-// ── STATE ──────────────────────────────────────────────────────────────
+function playPop() {
+  const ac = getAudio();
+  const o  = ac.createOscillator();
+  const g  = ac.createGain();
+  o.type = 'sine';
+  o.connect(g); g.connect(ac.destination);
+  o.frequency.setValueAtTime(400, ac.currentTime);
+  o.frequency.exponentialRampToValueAtTime(900, ac.currentTime + 0.08);
+  o.frequency.exponentialRampToValueAtTime(600, ac.currentTime + 0.15);
+  g.gain.setValueAtTime(0, ac.currentTime);
+  g.gain.linearRampToValueAtTime(0.3, ac.currentTime + 0.03);
+  g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.2);
+  o.start(); o.stop(ac.currentTime + 0.2);
+}
+
+// ── VOICE & AMBIENT SOUNDS ─────────────────────
+const correctPhrases = ['Correct!', 'You got it!', 'Nice find!', 'Great eye!', 'Spot on!'];
+const wrongPhrases   = ['Nope!', 'Try again!', 'Not there!', 'Keep looking!'];
+
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate   = 1.1;
+  u.pitch  = 1.2;
+  u.volume = 0.9;
+  window.speechSynthesis.speak(u);
+}
+function speakCorrect() {
+  speak(correctPhrases[Math.floor(Math.random() * correctPhrases.length)]);
+}
+function speakWrong() {
+  speak(wrongPhrases[Math.floor(Math.random() * wrongPhrases.length)]);
+}
+
+// ── HEARTBEAT ──────────────────────────────────
+let heartbeatInterval = null;
+
+function startHeartbeat() {
+  stopHeartbeat();
+  heartbeatInterval = setInterval(() => playHeartbeat(), 600);
+}
+function stopHeartbeat() {
+  clearInterval(heartbeatInterval);
+  heartbeatInterval = null;
+}
+function playHeartbeat() {
+  const ac = getAudio();
+  function beat(time) {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'sine';
+    o.connect(g); g.connect(ac.destination);
+    o.frequency.setValueAtTime(60, time);
+    o.frequency.exponentialRampToValueAtTime(40, time + 0.1);
+    g.gain.setValueAtTime(0, time);
+    g.gain.linearRampToValueAtTime(0.4, time + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.15);
+    o.start(time); o.stop(time + 0.15);
+  }
+  const now = ac.currentTime;
+  beat(now);
+  beat(now + 0.18);
+}
+
+// ── AMBIENT MUSIC ──────────────────────────────
+let ambientNode = null;
+let ambientGain = null;
+
+function startAmbient() {
+  if (ambientNode) return;
+  const ac = getAudio();
+
+  ambientGain = ac.createGain();
+  ambientGain.gain.value = 0.07;
+  ambientGain.connect(ac.destination);
+
+  // this is pattern for exciting music
+  const pattern = [
+    523, 659, 784, 1047,   // C major arp up
+    988, 784, 659, 523,    // back down
+    587, 740, 880, 1175,   // D major arp up
+    1047, 880, 740, 587,   // back down
+  ];
+
+  let step = 0;
+
+  function playNote() {
+    const o  = ac.createOscillator();
+    const g  = ac.createGain();
+    const lfo = ac.createOscillator(); // adds vibrato
+    const lfoGain = ac.createGain();
+
+    lfo.frequency.value = 5;
+    lfoGain.gain.value  = 3;
+    lfo.connect(lfoGain);
+    lfoGain.connect(o.frequency);
+
+    o.type = step % 8 < 4 ? 'triangle' : 'sine'; // alternates tone texture
+    o.connect(g);
+    g.connect(ambientGain);
+
+    const freq = pattern[step % pattern.length];
+    o.frequency.value = freq;
+
+    const t = ac.currentTime;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.6, t + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+
+    lfo.start(t); lfo.stop(t + 0.55);
+    o.start(t);   o.stop(t + 0.55);
+
+    step++;
+  }
+
+  playNote();
+  ambientNode = setInterval(playNote, 280); // making music faster 
+}
+
+function stopAmbient() {
+  clearInterval(ambientNode);
+  ambientNode = null;
+  if (ambientGain) {
+    try {
+      ambientGain.gain.setValueAtTime(ambientGain.gain.value, getAudio().currentTime);
+      ambientGain.gain.exponentialRampToValueAtTime(0.001, getAudio().currentTime + 0.8);
+    } catch(e) {}
+    ambientGain = null;
+  }
+}
+
+// ── STATE ──────────────────────────────────────
 let coins = 0;
 let currentWorldIndex = 0;
 let currentLevelIndex = 0;
@@ -146,357 +273,15 @@ let timerFrozen = false;
 let differencesFound = 0;
 let activeLevel = null;
 
-// ── WORLD & LEVEL DATA ─────────────────────────────────────────────────
+// ── WORLD & LEVEL DATA ─────────────────────────
 const worlds = [
-  {
-    id: 'kathmandu',
-    name: 'Kathmandu Streets',
-    emoji: '🏙',
-    description: 'Busy alleys, street vendors, and hidden temples',
-    premium: false,
-    levels: [
-      {
-        name: 'Ason Bazaar',
-        difficulty: 'Easy',
-        timeLimit: 90,
-        differences: 3,
-        coinsPerFind: 10,
-        imgLeft: 'images/kathmandu/1_original.jpg',
-        imgRight: 'images/kathmandu/1_changed.jpg',
-        hotspots: [
-          { x: 120, y: 95, r: 35 },
-          { x: 280, y: 180, r: 35 },
-          { x: 75,  y: 260, r: 35 },
-        ]
-      },
-      {
-        name: 'Thamel Alley',
-        difficulty: 'Easy',
-        timeLimit: 80,
-        differences: 3,
-        coinsPerFind: 10,
-        imgLeft: 'images/kathmandu/2_original.jpg',
-        imgRight: 'images/kathmandu/2_changed.jpg',
-        hotspots: [
-          { x: 200, y: 130, r: 35 },
-          { x: 310, y: 90,  r: 35 },
-          { x: 150, y: 280, r: 35 },
-        ]
-      },
-      {
-        name: 'Durbar Square',
-        difficulty: 'Medium',
-        timeLimit: 70,
-        differences: 4,
-        coinsPerFind: 15,
-        imgLeft: 'images/kathmandu/3_original.jpg',
-        imgRight: 'images/kathmandu/3_changed.jpg',
-        hotspots: [
-          { x: 90,  y: 70,  r: 30 },
-          { x: 220, y: 160, r: 30 },
-          { x: 300, y: 240, r: 30 },
-          { x: 130, y: 310, r: 30 },
-        ]
-      },
-      {
-        name: 'Morning Market',
-        difficulty: 'Medium',
-        timeLimit: 65,
-        differences: 4,
-        coinsPerFind: 15,
-        imgLeft: 'images/kathmandu/4_original.jpg',
-        imgRight: 'images/kathmandu/4_changed.jpg',
-        hotspots: [
-          { x: 180, y: 100, r: 30 },
-          { x: 260, y: 200, r: 30 },
-          { x: 80,  y: 290, r: 30 },
-          { x: 320, y: 150, r: 30 },
-        ]
-      },
-      {
-        name: 'Swayambhu Steps',
-        difficulty: 'Hard',
-        timeLimit: 55,
-        differences: 5,
-        coinsPerFind: 20,
-        imgLeft: 'images/kathmandu/5_original.jpg',
-        imgRight: 'images/kathmandu/5_changed.jpg',
-        hotspots: [
-          { x: 100, y: 80,  r: 28 },
-          { x: 240, y: 130, r: 28 },
-          { x: 320, y: 220, r: 28 },
-          { x: 160, y: 290, r: 28 },
-          { x: 60,  y: 330, r: 28 },
-        ]
-      },
-    ]
-  },
-  {
-    id: 'indrajatra',
-    name: 'Indra Jatra',
-    emoji: '🎭',
-    description: 'Masks, chariots, and festival chaos',
-    premium: false,
-    levels: [
-      {
-        name: 'Kumari Chariot',
-        difficulty: 'Easy',
-        timeLimit: 85,
-        differences: 3,
-        coinsPerFind: 10,
-        imgLeft: 'images/indrajatra/1_original.jpg',
-        imgRight: 'images/indrajatra/1_changed.jpg',
-        hotspots: [
-          { x: 140, y: 110, r: 35 },
-          { x: 270, y: 195, r: 35 },
-          { x: 90,  y: 275, r: 35 },
-        ]
-      },
-      {
-        name: 'Lakhe Dance',
-        difficulty: 'Easy',
-        timeLimit: 80,
-        differences: 3,
-        coinsPerFind: 10,
-        imgLeft: 'images/indrajatra/2_original.jpg',
-        imgRight: 'images/indrajatra/2_changed.jpg',
-        hotspots: [
-          { x: 200, y: 90,  r: 35 },
-          { x: 100, y: 200, r: 35 },
-          { x: 290, y: 270, r: 35 },
-        ]
-      },
-      {
-        name: 'Devi Procession',
-        difficulty: 'Medium',
-        timeLimit: 70,
-        differences: 4,
-        coinsPerFind: 15,
-        imgLeft: 'images/indrajatra/3_original.jpg',
-        imgRight: 'images/indrajatra/3_changed.jpg',
-        hotspots: [
-          { x: 120, y: 85,  r: 30 },
-          { x: 230, y: 150, r: 30 },
-          { x: 310, y: 230, r: 30 },
-          { x: 80,  y: 300, r: 30 },
-        ]
-      },
-      {
-        name: 'Newari Feast',
-        difficulty: 'Medium',
-        timeLimit: 65,
-        differences: 4,
-        coinsPerFind: 15,
-        imgLeft: 'images/indrajatra/4_original.jpg',
-        imgRight: 'images/indrajatra/4_changed.jpg',
-        hotspots: [
-          { x: 170, y: 120, r: 30 },
-          { x: 280, y: 90,  r: 30 },
-          { x: 95,  y: 250, r: 30 },
-          { x: 330, y: 310, r: 30 },
-        ]
-      },
-      {
-        name: 'Night Finale',
-        difficulty: 'Hard',
-        timeLimit: 55,
-        differences: 5,
-        coinsPerFind: 20,
-        imgLeft: 'images/indrajatra/5_original.jpg',
-        imgRight: 'images/indrajatra/5_changed.jpg',
-        hotspots: [
-          { x: 110, y: 75,  r: 28 },
-          { x: 250, y: 120, r: 28 },
-          { x: 180, y: 230, r: 28 },
-          { x: 330, y: 195, r: 28 },
-          { x: 70,  y: 320, r: 28 },
-        ]
-      },
-    ]
-  },
-  {
-    id: 'himalaya',
-    name: 'Himalayan Trek',
-    emoji: '🏔',
-    description: 'Snow peaks, suspension bridges, tea houses',
-    premium: true,
-    price: '$1.99',
-    coinPrice: 200,
-    levels: [
-      {
-        name: 'Base Camp Trail',
-        difficulty: 'Medium',
-        timeLimit: 70,
-        differences: 4,
-        coinsPerFind: 15,
-        imgLeft: 'images/himalaya/1_original.jpg',
-        imgRight: 'images/himalaya/1_changed.jpg',
-        hotspots: [
-          { x: 130, y: 100, r: 30 },
-          { x: 260, y: 170, r: 30 },
-          { x: 80,  y: 270, r: 30 },
-          { x: 310, y: 300, r: 30 },
-        ]
-      },
-      {
-        name: 'Suspension Bridge',
-        difficulty: 'Medium',
-        timeLimit: 65,
-        differences: 4,
-        coinsPerFind: 15,
-        imgLeft: 'images/himalaya/2_original.jpg',
-        imgRight: 'images/himalaya/2_changed.jpg',
-        hotspots: [
-          { x: 190, y: 80,  r: 30 },
-          { x: 290, y: 190, r: 30 },
-          { x: 120, y: 260, r: 30 },
-          { x: 250, y: 330, r: 30 },
-        ]
-      },
-      {
-        name: 'Tea House Dusk',
-        difficulty: 'Hard',
-        timeLimit: 60,
-        differences: 5,
-        coinsPerFind: 20,
-        imgLeft: 'images/himalaya/3_original.jpg',
-        imgRight: 'images/himalaya/3_changed.jpg',
-        hotspots: [
-          { x: 100, y: 90,  r: 28 },
-          { x: 220, y: 140, r: 28 },
-          { x: 310, y: 210, r: 28 },
-          { x: 155, y: 290, r: 28 },
-          { x: 350, y: 330, r: 28 },
-        ]
-      },
-      {
-        name: 'Glacier Crossing',
-        difficulty: 'Hard',
-        timeLimit: 55,
-        differences: 5,
-        coinsPerFind: 20,
-        imgLeft: 'images/himalaya/4_original.jpg',
-        imgRight: 'images/himalaya/4_changed.jpg',
-        hotspots: [
-          { x: 85,  y: 110, r: 28 },
-          { x: 200, y: 80,  r: 28 },
-          { x: 330, y: 175, r: 28 },
-          { x: 140, y: 280, r: 28 },
-          { x: 290, y: 320, r: 28 },
-        ]
-      },
-      {
-        name: 'Summit View',
-        difficulty: 'Expert',
-        timeLimit: 45,
-        differences: 6,
-        coinsPerFind: 25,
-        imgLeft: 'images/himalaya/5_original.jpg',
-        imgRight: 'images/himalaya/5_changed.jpg',
-        hotspots: [
-          { x: 75,  y: 80,  r: 25 },
-          { x: 170, y: 130, r: 25 },
-          { x: 290, y: 100, r: 25 },
-          { x: 120, y: 240, r: 25 },
-          { x: 250, y: 290, r: 25 },
-          { x: 340, y: 220, r: 25 },
-        ]
-      },
-    ]
-  },
-  {
-    id: 'genz',
-    name: 'Gen Z Protest',
-    emoji: '✊',
-    description: 'Placards, paint, and people power',
-    premium: true,
-    price: '$2.49',
-    coinPrice: 300,
-    levels: [
-      {
-        name: 'Ratna Park Rally',
-        difficulty: 'Medium',
-        timeLimit: 70,
-        differences: 4,
-        coinsPerFind: 15,
-        imgLeft: 'images/genz/1_original.jpg',
-        imgRight: 'images/genz/1_changed.jpg',
-        hotspots: [
-          { x: 155, y: 100, r: 30 },
-          { x: 275, y: 180, r: 30 },
-          { x: 95,  y: 265, r: 30 },
-          { x: 320, y: 310, r: 30 },
-        ]
-      },
-      {
-        name: 'Slogan Wall',
-        difficulty: 'Medium',
-        timeLimit: 65,
-        differences: 4,
-        coinsPerFind: 15,
-        imgLeft: 'images/genz/2_original.jpg',
-        imgRight: 'images/genz/2_changed.jpg',
-        hotspots: [
-          { x: 110, y: 130, r: 30 },
-          { x: 240, y: 90,  r: 30 },
-          { x: 310, y: 235, r: 30 },
-          { x: 175, y: 300, r: 30 },
-        ]
-      },
-      {
-        name: 'Paint Splash',
-        difficulty: 'Hard',
-        timeLimit: 60,
-        differences: 5,
-        coinsPerFind: 20,
-        imgLeft: 'images/genz/3_original.jpg',
-        imgRight: 'images/genz/3_changed.jpg',
-        hotspots: [
-          { x: 90,  y: 85,  r: 28 },
-          { x: 210, y: 155, r: 28 },
-          { x: 330, y: 105, r: 28 },
-          { x: 145, y: 275, r: 28 },
-          { x: 295, y: 310, r: 28 },
-        ]
-      },
-      {
-        name: 'Midnight March',
-        difficulty: 'Hard',
-        timeLimit: 55,
-        differences: 5,
-        coinsPerFind: 20,
-        imgLeft: 'images/genz/4_original.jpg',
-        imgRight: 'images/genz/4_changed.jpg',
-        hotspots: [
-          { x: 130, y: 95,  r: 28 },
-          { x: 255, y: 145, r: 28 },
-          { x: 80,  y: 250, r: 28 },
-          { x: 340, y: 200, r: 28 },
-          { x: 195, y: 320, r: 28 },
-        ]
-      },
-      {
-        name: 'The Final Stand',
-        difficulty: 'Expert',
-        timeLimit: 45,
-        differences: 6,
-        coinsPerFind: 25,
-        imgLeft: 'images/genz/5_original.jpg',
-        imgRight: 'images/genz/5_changed.jpg',
-        hotspots: [
-          { x: 70,  y: 100, r: 25 },
-          { x: 180, y: 75,  r: 25 },
-          { x: 295, y: 130, r: 25 },
-          { x: 115, y: 250, r: 25 },
-          { x: 255, y: 285, r: 25 },
-          { x: 345, y: 215, r: 25 },
-        ]
-      },
-    ]
-  }
+  theme_kathmandu,
+  theme_festivals,
+  theme_himalaya,
+  theme_genz,
 ];
 
-// ── SAVE / LOAD ────────────────────────────────────────────────────────
+// ── SAVE / LOAD ────────────────────────────────
 function saveProgress() {
   const data = {
     coins,
@@ -521,16 +306,20 @@ function loadProgress() {
       l.completed = data.levelProgress[wi]?.[li] || false;
     });
   });
-  // Free worlds always unlocked
   worlds[0].unlocked = true;
   worlds[1].unlocked = true;
 }
 
-// ── SCREEN SWITCHING ───────────────────────────────────────────────────
+// ── SCREEN SWITCHING ───────────────────────────
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   updateAllCoinDisplays();
+  if (id === 'screen-home' || id === 'screen-worlds' || id === 'screen-levels') {
+    startAmbient();
+  } else {
+    stopAmbient();
+  }
 }
 
 function updateAllCoinDisplays() {
@@ -540,7 +329,7 @@ function updateAllCoinDisplays() {
   });
 }
 
-// ── WORLD SELECT ───────────────────────────────────────────────────────
+// ── WORLD SELECT ───────────────────────────────
 function renderWorlds() {
   const grid = document.getElementById('worlds-grid');
   grid.innerHTML = '';
@@ -568,12 +357,15 @@ function renderWorlds() {
       ${!isUnlocked ? `<div class="lock-banner">🔒 ${world.coinPrice}🪙 or ${world.price}</div>` : ''}
     `;
 
-    card.onclick = () => isUnlocked ? openWorldLevels(wi) : openUnlockPrompt(wi);
+    card.onclick = () => {
+  playPop();
+  isUnlocked ? openWorldLevels(wi) : openUnlockPrompt(wi);
+};
     grid.appendChild(card);
   });
 }
 
-// ── LEVEL SELECT ───────────────────────────────────────────────────────
+// ── LEVEL SELECT ───────────────────────────────
 function openWorldLevels(wi) {
   currentWorldIndex = wi;
   const world = worlds[wi];
@@ -583,7 +375,7 @@ function openWorldLevels(wi) {
   grid.innerHTML = '';
 
   world.levels.forEach((lvl, li) => {
-    const isLocked = li > 0 && !world.levels[li - 1].completed;
+    const isLocked = (li > 0 && !world.levels[li - 1].completed) || lvl.completed;
     const card = document.createElement('div');
     card.className = 'level-card' + (isLocked ? ' locked' : '') + (lvl.completed ? ' completed' : '');
     card.innerHTML = `
@@ -603,7 +395,7 @@ function starsDisplay(lvl) {
   return map[lvl.difficulty] || '';
 }
 
-// ── GAME START ─────────────────────────────────────────────────────────
+// ── GAME START ─────────────────────────────────
 function startLevel(wi, li) {
   currentWorldIndex = wi;
   currentLevelIndex = li;
@@ -614,7 +406,6 @@ function startLevel(wi, li) {
   timerSeconds = lvl.timeLimit;
   timerFrozen = false;
 
-  // Reset hotspot found state
   lvl.hotspots.forEach(h => h.found = false);
 
   document.getElementById('img-left').src  = lvl.imgLeft;
@@ -630,7 +421,7 @@ function startLevel(wi, li) {
   setupClicks();
 }
 
-// ── TIMER ──────────────────────────────────────────────────────────────
+// ── TIMER ──────────────────────────────────────
 function startTimer() {
   clearInterval(timerInterval);
   updateTimerDisplay();
@@ -642,9 +433,12 @@ function startTimer() {
 
     if (timerSeconds <= 10) {
       document.getElementById('hud-timer').classList.add('warning');
+      playTimerWarning();
+      startHeartbeat();
     }
     if (timerSeconds <= 0) {
       clearInterval(timerInterval);
+      stopHeartbeat();
       showScreen('screen-lose');
     }
   }, 1000);
@@ -654,40 +448,45 @@ function updateTimerDisplay() {
   document.getElementById('hud-timer').textContent = `⏱ ${timerSeconds}s`;
 }
 
-// ── CLICK DETECTION ────────────────────────────────────────────────────
+// ── CLICK DETECTION ────────────────────────────
 function setupClicks() {
   ['img-left', 'img-right'].forEach(id => {
     const img = document.getElementById(id);
-    const fresh = img.cloneNode(true);
-    img.parentNode.replaceChild(fresh, img);
-
-    fresh.addEventListener('click', (e) => {
-      const rect = fresh.getBoundingClientRect();
-      // Normalize click to a 340x340 coordinate space to match hotspot data
-      const scaleX = 340 / rect.width;
-      const scaleY = 340 / rect.height;
-      const nx = (e.clientX - rect.left) * scaleX;
-      const ny = (e.clientY - rect.top)  * scaleY;
-      handleClick(nx, ny, e.clientX, e.clientY);
-    });
+    const wrapper = img.parentNode;
+    
+    wrapper.onclick = (e) => {
+      const rect = img.getBoundingClientRect();
+      const pctX = (e.clientX - rect.left) / rect.width;
+      const pctY = (e.clientY - rect.top)  / rect.height;
+      
+      // ignore clicks outside the image bounds
+      if (pctX < 0 || pctX > 1 || pctY < 0 || pctY > 1) return;
+      
+      handleClick(pctX, pctY, e.clientX, e.clientY);
+    };
   });
 }
 
-function handleClick(nx, ny, rawX, rawY) {
+function handleClick(pctX, pctY, rawX, rawY) {
   let hit = false;
   activeLevel.hotspots.forEach(spot => {
     if (spot.found) return;
-    if (Math.hypot(nx - spot.x, ny - spot.y) <= spot.r) {
+    const dist = Math.sqrt(
+      Math.pow(pctX - spot.x, 2) +
+      Math.pow(pctY - spot.y, 2)
+    );
+    if (dist <= spot.r) {
       spot.found = true;
       differencesFound++;
       coins += activeLevel.coinsPerFind;
       updateAllCoinDisplays();
       updateFoundLabel();
-      placeMarker(spot, rawX, rawY);
+      placeMarker(spot);
       showFeedback('✅', rawX, rawY);
+      playFind();
+      speakCorrect();
       saveProgress();
       hit = true;
-
       if (differencesFound >= activeLevel.differences) {
         clearInterval(timerInterval);
         activeLevel.completed = true;
@@ -696,33 +495,25 @@ function handleClick(nx, ny, rawX, rawY) {
       }
     }
   });
-
-  if (!hit) showFeedback('❌', rawX, rawY);
-}
-
-// ── MARKERS ────────────────────────────────────────────────────────────
-function placeMarker(spot, rawX, rawY) {
-  // Place circle on both images at the percentage position
-  ['img-left', 'img-right'].forEach(id => {
-    const img = document.getElementById(id);
-    const rect = img.getBoundingClientRect();
-    const pctX = (spot.x / 340) * 100;
-    const pctY = (spot.y / 340) * 100;
-
-    const marker = document.createElement('div');
-    marker.className = 'diff-marker';
-    marker.style.left = pctX + '%';
-    marker.style.top  = pctY + '%';
-
-    img.parentNode.querySelector('.markers').appendChild(marker);
-  });
+  if (!hit) { showFeedback('❌', rawX, rawY); playWrong(); speakWrong(); }
 }
 
 function clearMarkers() {
   document.querySelectorAll('.markers').forEach(m => m.innerHTML = '');
 }
 
-// ── FEEDBACK POP ───────────────────────────────────────────────────────
+function placeMarker(spot) {
+  ['img-left', 'img-right'].forEach(id => {
+    const img = document.getElementById(id);
+    const marker = document.createElement('div');
+    marker.className = 'diff-marker';
+    marker.style.left = (spot.x * 100) + '%';
+    marker.style.top  = (spot.y * 100) + '%';
+    img.parentNode.querySelector('.markers').appendChild(marker);
+  });
+}
+
+// ── FEEDBACK POP ───────────────────────────────
 function showFeedback(emoji, x, y) {
   const el = document.createElement('div');
   el.className = 'feedback-pop';
@@ -733,8 +524,10 @@ function showFeedback(emoji, x, y) {
   setTimeout(() => el.remove(), 900);
 }
 
-// ── WIN / NEXT ─────────────────────────────────────────────────────────
+// ── WIN / NEXT ─────────────────────────────────
 function showWin() {
+  playWin();
+  stopHeartbeat();
   const earned = activeLevel.differences * activeLevel.coinsPerFind;
   document.getElementById('win-msg').textContent =
     `+${earned} 🪙 coins earned!`;
@@ -748,7 +541,6 @@ function nextLevel() {
   if (next < world.levels.length) {
     startLevel(currentWorldIndex, next);
   } else {
-    // Last level in world — go back to world select
     alert(`🏆 You finished ${world.name}!`);
     renderWorlds();
     showScreen('screen-worlds');
@@ -759,7 +551,7 @@ function retryLevel() {
   startLevel(currentWorldIndex, currentLevelIndex);
 }
 
-// ── POWER-UPS ──────────────────────────────────────────────────────────
+// ── POWER-UPS ──────────────────────────────────
 function useFreeze() {
   if (coins < 10) { alert('Not enough coins! Buy more below.'); return; }
   coins -= 10;
@@ -780,7 +572,7 @@ function useSkip() {
   nextLevel();
 }
 
-// ── SHOP ───────────────────────────────────────────────────────────────
+// ── SHOP ───────────────────────────────────────
 function openShop() {
   document.getElementById('shop-overlay').classList.remove('hidden');
 }
@@ -788,7 +580,6 @@ function closeShop() {
   document.getElementById('shop-overlay').classList.add('hidden');
 }
 function buyCoin(amount, price) {
-  // Replace this confirm() with a real payment SDK (Stripe, etc.) later
   if (confirm(`Pay $${price} for ${amount} coins?\n(This is a simulated purchase)`)) {
     coins += amount;
     updateAllCoinDisplays();
@@ -797,7 +588,7 @@ function buyCoin(amount, price) {
   }
 }
 
-// ── UNLOCK ─────────────────────────────────────────────────────────────
+// ── UNLOCK ─────────────────────────────────────
 let pendingUnlockIndex = null;
 
 function openUnlockPrompt(wi) {
@@ -830,7 +621,6 @@ function unlockWithCoins() {
 }
 
 function unlockWithMoney() {
-  // Replace with real payment SDK later
   if (confirm(`Buy ${worlds[pendingUnlockIndex].name} for ${worlds[pendingUnlockIndex].price}?`)) {
     worlds[pendingUnlockIndex].unlocked = true;
     saveProgress();
@@ -839,13 +629,23 @@ function unlockWithMoney() {
   }
 }
 
-// ── HELPERS ────────────────────────────────────────────────────────────
+// ── HELPERS ────────────────────────────────────
 function updateFoundLabel() {
   document.getElementById('found-label').textContent =
     `Found: ${differencesFound} / ${activeLevel.differences}`;
 }
 
-// ── INIT ───────────────────────────────────────────────────────────────
+function quitLevel() {
+  const confirmed = confirm('Quit this level? Your progress will be lost.');
+  if (!confirmed) return;
+  clearInterval(timerInterval);
+  stopHeartbeat();
+  showScreen('screen-worlds');
+}
+
+// ── INIT ───────────────────────────────────────
 loadProgress();
 renderWorlds();
 updateAllCoinDisplays();
+initHome();
+startAmbient();
