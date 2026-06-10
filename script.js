@@ -553,8 +553,8 @@ function retryLevel() {
 
 // ── POWER-UPS ──────────────────────────────────
 function useFreeze() {
-  if (coins < 10) { alert('Not enough coins! Buy more below.'); return; }
-  coins -= 10;
+  if (coins < 100) { alert('Not enough coins! Buy more below.'); return; }
+  coins -= 100;
   timerFrozen = true;
   updateAllCoinDisplays();
   saveProgress();
@@ -562,8 +562,8 @@ function useFreeze() {
 }
 
 function useSkip() {
-  if (coins < 20) { alert('Not enough coins! Buy more below.'); return; }
-  coins -= 20;
+  if (coins < 500) { alert('Not enough coins! Buy more below.'); return; }
+  coins -= 500;
   updateAllCoinDisplays();
   saveProgress();
   clearInterval(timerInterval);
