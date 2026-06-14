@@ -17,6 +17,14 @@ const theme_himalaya = {
       coinsPerFind: 5,
       imgLeft:  'images/himalaya/himalaya_level1_first.jpeg',
       imgRight: 'images/himalaya/himalaya_level1_second.jpeg',
+      hints: [
+        'The wind carries a different story today',
+        'A traveller packed differently for this journey',
+        'Even the animals have their own sense of fashion',
+        'Words can change meaning when you least expect it',
+        'The path ahead is not quite what it seems',
+        'What connects the two sides has quietly changed',
+      ],
       hotspots: [
         { x: 0.591, y: 0.070, r: 0.06 },
         { x: 0.730, y: 0.476, r: 0.06 },
@@ -37,6 +45,14 @@ const theme_himalaya = {
       coinsPerFind: 5,
       imgLeft: 'images/himalaya/himalaya_level2_first.jpg',
       imgRight: 'images/himalaya/himalaya_level2_second.jpg',
+      hints: [
+        'What is carried on the back tells a different tale',
+        'The mountain cold demands a different colour today',
+        'Even the beast of burden has a new accessory',
+        'The sacred sound of the mountains has changed its face',
+        'Not everything written in stone stays the same',
+        'The trees are keeping a colourful secret',
+      ],
       hotspots: [
         { x: 0.353, y: 0.605, r: 0.06 },
         { x: 0.518, y: 0.655, r: 0.06 },
