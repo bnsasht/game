@@ -357,6 +357,30 @@ body {
   #worlds-grid { grid-template-columns: 1fr; padding: 16px; }
 }
 
+#hint-box {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 20, 40, 0.95);
+  border: 1px solid #ffd700;
+  border-radius: 12px;
+  padding: 14px 24px;
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+  max-width: 320px;
+  text-align: center;
+}
+#hint-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  color: #ffd700;
+}
+#hint-inner span { font-size: 24px; }
+#hint-inner p { margin: 0; color: #eaeaea; }
+
 /* ── HOME PAGE ─────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap');
 
