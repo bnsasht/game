@@ -63,5 +63,34 @@ const theme_himalaya = {
       ]
     },
 
+    //code for level 3 of himalaya theme
+   {
+      name: 'Khumbu Valley',
+      difficulty: 'Medium',
+      timeLimit: 70,
+      differences: 7,
+      coinsPerFind: 7,
+      imgLeft:  'images/himalaya/himalaya_level3_first.png',
+      imgRight: 'images/himalaya/himalaya_level3_second.png',
+      hints: [
+        'The all-seeing eyes may not be seeing the same thing',
+        'Something at the very top has quietly disappeared',
+        'A silent visitor passed through the sky',
+        'The wanderer chose a different crown today',
+        'Nature\'s colours have bloomed differently here',
+        'Look at what guards the side of the sacred dome',
+        'Shelter looks a little different from above',
+      ],
+      hotspots: [
+        { x: 0.259, y: 0.447, r: 0.06 },
+        { x: 0.254, y: 0.235, r: 0.06 },
+        { x: 0.649, y: 0.232, r: 0.06 },
+        { x: 0.601, y: 0.543, r: 0.06 },
+        { x: 0.350, y: 0.663, r: 0.06 },
+        { x: 0.181, y: 0.742, r: 0.06 },
+        { x: 0.235, y: 0.605, r: 0.06 },
+      ]
+    },
+
   ]
 };
