@@ -25,5 +25,6 @@ const theme_kathmandu = {
       { x: 0.739, y: 0.503, r: 0.06 },
     ]
     } 
+    
   ]
 };
