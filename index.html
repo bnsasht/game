@@ -54,11 +54,14 @@
 </div>
 
   <!-- WORLD SELECT -->
-  <div id="screen-worlds" class="screen">
+ <div id="screen-worlds" class="screen">
     <div class="screen-header">
       <button class="btn-back" onclick="showScreen('screen-home')">← Back</button>
       <h2>Choose a World</h2>
-      <div class="coin-bar"><span>🪙</span><span id="worlds-coins">0</span></div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <button class="btn-mane-header" onclick="playClick(); openManeModal()">☸️ Spin Mane (56🪙)</button>
+        <div class="coin-bar"><span>🪙</span><span id="worlds-coins">0</span></div>
+      </div>
     </div>
     <div id="worlds-grid"></div>
   </div>
@@ -81,6 +84,7 @@
       <span id="hud-coins">🪙 0</span>
     </div>
     <div id="powerups">
+      <button onclick="openHintWheel()">💡 Hint <small>(40🪙)</small></button>
       <button onclick="useFreeze()">❄️ Freeze <small>(100🪙)</small></button>
       <button onclick="useSkip()">⏭ Skip <small>(500🪙)</small></button>
       <button onclick="openShop()">+ Coins</button>
@@ -157,11 +161,78 @@
       <button class="btn-secondary" onclick="closeUnlock()">Cancel</button>
     </div>
   </div>
+<div id="mane-overlay" class="overlay hidden">
+    <div class="overlay-box mane-box-premium">
+      
+      <div class="mane-header-nav">
+        <button class="mane-nav-back" onclick="closeManeModal()">← Back</button>
+        <h2>Mane Spin</h2>
+        <div></div> </div>
+      
+      <div class="mane-visual-card">
+        
+        <div class="mane-wheel-assembly" id="mane-cylinder">
+          <div class="wheel-ornament-top"></div>
+          <div class="wheel-metallic-body">
+            <div class="tibetan-script-bg">म ण ि</div>
+          </div>
+          <div class="wheel-ornament-bottom"></div>
+        </div>
 
+        <div class="selector-ribbon-belt">
+          <div class="carousel-track" id="carousel-track-scroll"></div>
+        </div>
+
+        <div class="premium-pointer-frame">
+          <div class="pointer-emblem top">🔱</div>
+          <div class="pointer-emblem bottom">🔱</div>
+        </div>
+
+      </div>
+
+      <div class="mane-instruction-bubble">
+        Click the button to spin for a bonus reward!
+      </div>
+
+      <div id="mane-result-container" class="mane-result hidden">
+        <div id="mane-reward-text" class="reward-text"></div>
+      </div>
+
+      <div class="mane-action-container">
+        <button class="btn-spin-premium" onclick="spinMane()">
+          <span>SPIN</span> <span class="arrow-icon">❯</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
   <script src="themes/kathmandu.js"></script>
   <script src="themes/festivals.js"></script>
   <script src="themes/himalaya.js"></script>
   <script src="themes/genz.js"></script>
   <script src="script.js"></script>
+
+
+  <!-- HINT WHEEL OVERLAY -->
+<div id="hint-wheel-overlay" class="overlay hidden">
+  <div class="overlay-box" id="hint-wheel-box">
+    <h2>💡 Spin for a Hint</h2>
+    <p style="color:#888;font-size:13px">40 coins per spin · The wheel doesn't care what you've already found — it might send you somewhere new or somewhere you've already been. That's the gamble. 🎲</p>
+    
+    <div id="wheel-container">
+      <div id="wheel-pointer">▼</div>
+      <canvas id="wheel-canvas" width="280" height="280"></canvas>
+    </div>
+
+    <div id="hint-result" class="hidden">
+      <p id="hint-result-text"></p>
+    </div>
+
+    <div id="wheel-buttons">
+      <button class="btn-primary" id="spin-btn" onclick="spinWheel()">🎰 Spin! (40🪙)</button>
+      <button class="btn-secondary" onclick="closeHintWheel()">Close</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
