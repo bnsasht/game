@@ -457,3 +457,12 @@ body {
 .world-chip:hover { color:#f0eeea; }
 .version { position:absolute; bottom:12px; right:20px; font-size:10px;
   color:#6b6880; letter-spacing:2px; opacity:0.5; z-index:10; }
+
+  @keyframes confettiFall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+@keyframes rainFall {
+  0%   { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(110vh); opacity: 0.2; }
+}

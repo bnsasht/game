@@ -123,6 +123,22 @@ function playWin(){
     o.start(t); o.stop(t+0.4);
   });
 }
+
+function playLose() {
+  const ac = getAudio();
+  [400, 350, 280, 220].forEach((f, i) => {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'sawtooth';
+    o.connect(g); g.connect(ac.destination);
+    o.frequency.value = f;
+    const t = ac.currentTime + i * 0.18;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.15, t + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+    o.start(t); o.stop(t + 0.3);
+  });
+}
+
 function playTimerWarning(){
   const ac=getAudio(), o=ac.createOscillator(), g=ac.createGain();
   o.type='square'; o.connect(g); g.connect(ac.destination);
@@ -464,7 +480,9 @@ function startTimer() {
     if (timerSeconds <= 0) {
       clearInterval(timerInterval);
       stopHeartbeat();
+      playLose();
       showScreen('screen-lose');
+      setTimeout(launchSadRain, 300);
     }
   }, 1000);
 }
@@ -567,6 +585,7 @@ function showWin() {
   document.getElementById('win-msg').textContent =
     `+${earned} 🪙 coins earned!`;
   showScreen('screen-win');
+  setTimeout(launchConfetti, 300);
 }
 
 function nextLevel() {
@@ -706,6 +725,54 @@ function useHint() {
   `;
   document.body.appendChild(hintBox);
   setTimeout(() => hintBox.remove(), 4000);
+}
+
+// ── VISUAL EFFECTS ─────────────────────────────
+function launchConfetti() {
+  const colors = ['#ff3c5f','#ffd700','#4caf50','#00bcd4','#ff8c00','#e040fb'];
+  for (let i = 0; i < 120; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      const size = 8 + Math.random() * 10;
+      el.style.cssText = `
+        position:fixed;
+        left:${Math.random() * 100}%;
+        top:-20px;
+        width:${size}px;
+        height:${size}px;
+        background:${colors[Math.floor(Math.random() * colors.length)]};
+        border-radius:${Math.random() > 0.5 ? '50%' : '2px'};
+        z-index:9999;
+        pointer-events:none;
+        animation:confettiFall ${1.5 + Math.random() * 2}s ease-in forwards;
+        transform:rotate(${Math.random() * 360}deg);
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3500);
+    }, i * 30);
+  }
+}
+
+function launchSadRain() {
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.style.cssText = `
+        position:fixed;
+        left:${Math.random() * 100}%;
+        top:-20px;
+        width:2px;
+        height:${20 + Math.random() * 30}px;
+        background:rgba(100,160,255,${0.3 + Math.random() * 0.4});
+        z-index:9999;
+        pointer-events:none;
+        border-radius:2px;
+        animation:rainFall ${0.8 + Math.random() * 0.8}s linear forwards;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2000);
+    }, i * 60);
+  }
 }
 
 // ── INIT ───────────────────────────────────────
