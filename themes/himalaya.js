@@ -92,5 +92,33 @@ const theme_himalaya = {
       ]
     },
 
+    //code for level 4 of himalaya theme
+   {
+      name: 'Base Camp',
+      difficulty: 'Medium',
+      timeLimit: 70,
+      differences: 7,
+      coinsPerFind: 7,
+      imgLeft:  'images/himalaya/himalaya_level4_first.jpeg',
+      imgRight: 'images/himalaya/himalaya_level4_second.png',
+      hints: [
+         'The peak claims a different identity today',
+          'A trekker repacked before the final ascent',
+          'The cold dressed someone differently up here',
+          'A small companion for the journey has changed',
+          'The stones have been quietly rearranging themselves',
+          'A shelter chose a different shade for the altitude',
+          'Something that stood here has simply vanished',
+      ],
+      hotspots: [
+        { x: 0.603, y: 0.072, r: 0.06 },
+        { x: 0.591, y: 0.701, r: 0.06 },
+        { x: 0.555, y: 0.667, r: 0.06 },
+        { x: 0.523, y: 0.911, r: 0.06 },
+        { x: 0.336, y: 0.873, r: 0.06 },
+        { x: 0.353, y: 0.459, r: 0.06 },
+        { x: 0.694, y: 0.522, r: 0.06 },
+      ]
+    },
   ]
 };
