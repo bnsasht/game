@@ -147,6 +147,21 @@ function playPop() {
   o.start(); o.stop(ac.currentTime + 0.2);
 }
 
+function playHint() {
+  const ac = getAudio();
+  [400, 600, 800].forEach((f, i) => {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'sine';
+    o.connect(g); g.connect(ac.destination);
+    o.frequency.value = f;
+    const t = ac.currentTime + i * 0.1;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.15, t + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+    o.start(t); o.stop(t + 0.2);
+  });
+}
+
 // ── VOICE & AMBIENT SOUNDS ─────────────────────
 const correctPhrases = ['Correct!', 'You got it!', 'Nice find!', 'Great eye!', 'Spot on!'];
 const wrongPhrases   = ['Nope!', 'Try again!', 'Not there!', 'Keep looking!'];
@@ -272,6 +287,7 @@ let timerInterval = null;
 let timerFrozen = false;
 let differencesFound = 0;
 let activeLevel = null;
+let hintIndex = 0;
 
 // ── WORLD & LEVEL DATA ─────────────────────────
 const worlds = [
@@ -286,7 +302,10 @@ function saveProgress() {
   const data = {
     coins,
     unlockedWorlds: worlds.map(w => w.unlocked || false),
-    levelProgress: worlds.map(w => w.levels.map(l => l.completed || false))
+    levelProgress: worlds.map(w => w.levels.map(l => l.completed || false)),
+    earnedSpots: worlds.map(w => w.levels.map(l =>
+      l.hotspots.map(h => h.coinEarned || false)
+    ))
   };
   localStorage.setItem('eyeq_save', JSON.stringify(data));
 }
@@ -301,11 +320,14 @@ function loadProgress() {
   const data = JSON.parse(raw);
   coins = data.coins || 0;
   worlds.forEach((w, wi) => {
-    w.unlocked = data.unlockedWorlds[wi] || false;
-    w.levels.forEach((l, li) => {
-      l.completed = data.levelProgress[wi]?.[li] || false;
+  w.unlocked = data.unlockedWorlds[wi] || false;
+  w.levels.forEach((l, li) => {
+    l.completed = data.levelProgress[wi]?.[li] || false;
+    l.hotspots.forEach((h, hi) => {
+      h.coinEarned = data.earnedSpots?.[wi]?.[li]?.[hi] || false;
     });
   });
+});
   worlds[0].unlocked = true;
   worlds[1].unlocked = true;
 }
@@ -405,8 +427,11 @@ function startLevel(wi, li) {
   differencesFound = 0;
   timerSeconds = lvl.timeLimit;
   timerFrozen = false;
+  hintIndex = 0;
 
-  lvl.hotspots.forEach(h => h.found = false);
+  lvl.hotspots.forEach(h => {
+  h.found = false;
+});
 
   document.getElementById('img-left').src  = lvl.imgLeft;
   document.getElementById('img-right').src = lvl.imgRight;
@@ -478,7 +503,10 @@ function handleClick(pctX, pctY, rawX, rawY) {
     if (dist <= spot.r) {
       spot.found = true;
       differencesFound++;
-      coins += activeLevel.coinsPerFind;
+       if (!spot.coinEarned) {
+         coins += activeLevel.coinsPerFind;
+         spot.coinEarned = true;
+      }
       updateAllCoinDisplays();
       updateFoundLabel();
       placeMarker(spot);
@@ -495,7 +523,14 @@ function handleClick(pctX, pctY, rawX, rawY) {
       }
     }
   });
-  if (!hit) { showFeedback('❌', rawX, rawY); playWrong(); speakWrong(); }
+ if (!hit) {
+  coins = Math.max(0, coins - 2);
+  updateAllCoinDisplays();
+  saveProgress();
+  showFeedback('❌ -2🪙', rawX, rawY);
+  playWrong();
+  speakWrong();
+}
 }
 
 function clearMarkers() {
@@ -641,6 +676,36 @@ function quitLevel() {
   clearInterval(timerInterval);
   stopHeartbeat();
   showScreen('screen-worlds');
+}
+
+function useHint() {
+  if (!activeLevel) return;
+  if (coins < 40) { alert('You need 40 coins for a hint!'); return; }
+
+  const hints = activeLevel.hints || [];
+  if (hintIndex >= hints.length) {
+    alert('No more hints available for this level!');
+    return;
+  }
+
+  coins -= 40;
+  updateAllCoinDisplays();
+  saveProgress();
+
+  const hintText = hints[hintIndex];
+  hintIndex++;
+  playHint();
+
+  const hintBox = document.createElement('div');
+  hintBox.id = 'hint-box';
+  hintBox.innerHTML = `
+    <div id="hint-inner">
+      <span>💡</span>
+      <p><strong>Hint ${hintIndex}:</strong> ${hintText}</p>
+    </div>
+  `;
+  document.body.appendChild(hintBox);
+  setTimeout(() => hintBox.remove(), 4000);
 }
 
 // ── INIT ───────────────────────────────────────
