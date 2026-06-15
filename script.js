@@ -775,6 +775,194 @@ function launchSadRain() {
   }
 }
 
+
+// ── HINT WHEEL ─────────────────────────────────
+let wheelSpinning = false;
+let wheelAngle = 0;
+let wheelHints = [];
+
+function openHintWheel() {
+  if (!activeLevel) return;
+  if (coins < 40) { alert('You need 40 coins to spin!'); return; }
+
+  wheelHints = activeLevel.hints || [
+    'Look at the top half',
+    'Check the colors',
+    'Something on the right changed',
+    'Look at the bottom',
+    'Check near the edges',
+    'Something is missing',
+  ];
+
+  document.getElementById('hint-result').classList.add('hidden');
+  document.getElementById('spin-btn').disabled = false;
+  document.getElementById('spin-btn').textContent = '🎰 Spin! (40🪙)';
+  document.getElementById('hint-wheel-overlay').classList.remove('hidden');
+  drawWheel(wheelAngle);
+}
+
+function closeHintWheel() {
+  document.getElementById('hint-wheel-overlay').classList.add('hidden');
+}
+
+function drawWheel(rotation) {
+  const canvas = document.getElementById('wheel-canvas');
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const r  = cx - 10;
+  const n  = wheelHints.length;
+  const arc = (2 * Math.PI) / n;
+
+  const colors = [
+    '#ff3c5f','#ff8c00','#ffd700','#4caf50',
+    '#00bcd4','#7c4dff','#e040fb','#ff5722','#00e676'
+  ];
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  wheelHints.forEach((hint, i) => {
+    const start = rotation + i * arc;
+    const end   = start + arc;
+
+    // Slice
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, end);
+    ctx.closePath();
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fill();
+    ctx.strokeStyle = '#0f0f1a';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Number label
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + arc / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 18px Syne, sans-serif';
+    ctx.fillText(i + 1, r - 12, 6);
+    ctx.restore();
+  });
+
+  // Center circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, 22, 0, 2 * Math.PI);
+  ctx.fillStyle = '#0f0f1a';
+  ctx.fill();
+  ctx.strokeStyle = '#ffd700';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.fillStyle = '#ffd700';
+  ctx.font = 'bold 13px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('EyeQ', cx, cy + 5);
+}
+
+function spinWheel() {
+  if (wheelSpinning) return;
+  if (coins < 40) { alert('Not enough coins!'); return; }
+
+  coins -= 40;
+  updateAllCoinDisplays();
+  saveProgress();
+
+  wheelSpinning = true;
+  document.getElementById('spin-btn').disabled = true;
+  document.getElementById('hint-result').classList.add('hidden');
+
+  playWheelSpin();
+
+  const n = wheelHints.length;
+  const arc = (2 * Math.PI) / n;
+
+  // Random winning segment
+  const winner = Math.floor(Math.random() * n);
+
+  // Spin 5-8 full rotations then land on winner
+  const extraSpins = (5 + Math.random() * 3) * 2 * Math.PI;
+  const targetAngle = extraSpins + (2 * Math.PI - winner * arc - arc / 2);
+
+  const startAngle  = wheelAngle;
+  const totalChange = targetAngle;
+  const duration    = 4000;
+  const startTime   = performance.now();
+
+  function animate(now) {
+    const elapsed  = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+
+    // Ease out cubic
+    const ease = 1 - Math.pow(1 - progress, 3);
+    wheelAngle = startAngle + totalChange * ease;
+
+    drawWheel(wheelAngle);
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      wheelSpinning = false;
+      wheelAngle = wheelAngle % (2 * Math.PI);
+      showWheelResult(winner);
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+function showWheelResult(index) {
+  playWheelWin();
+  const hint = wheelHints[index];
+  const resultEl = document.getElementById('hint-result');
+  document.getElementById('hint-result-text').textContent =
+    `Hint ${index + 1}: ${hint}`;
+  resultEl.classList.remove('hidden');
+  document.getElementById('spin-btn').textContent = '🎰 Spin Again! (40🪙)';
+  document.getElementById('spin-btn').disabled = false;
+}
+
+// ── WHEEL SOUNDS ───────────────────────────────
+function playWheelSpin() {
+  const ac = getAudio();
+  let tick = 0;
+  const maxTicks = 30;
+
+  function playTick() {
+    if (tick >= maxTicks) return;
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'triangle';
+    o.frequency.value = 300 + tick * 15;
+    o.connect(g); g.connect(ac.destination);
+    g.gain.setValueAtTime(0.1, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.05);
+    o.start(ac.currentTime); o.stop(ac.currentTime + 0.05);
+
+    tick++;
+    // Ticks slow down as wheel slows
+    const delay = 50 + tick * 8;
+    setTimeout(playTick, delay);
+  }
+  playTick();
+}
+
+function playWheelWin() {
+  const ac = getAudio();
+  [600, 800, 1000, 1200].forEach((f, i) => {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'sine';
+    o.connect(g); g.connect(ac.destination);
+    o.frequency.value = f;
+    const t = ac.currentTime + i * 0.1;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.2, t + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+    o.start(t); o.stop(t + 0.3);
+  });
+}
+
 // ── INIT ───────────────────────────────────────
 loadProgress();
 renderWorlds();

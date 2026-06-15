@@ -381,6 +381,45 @@ body {
 #hint-inner span { font-size: 24px; }
 #hint-inner p { margin: 0; color: #eaeaea; }
 
+#wheel-container {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  margin: 10px auto;
+}
+#wheel-pointer {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  color: #ffd700;
+  z-index: 10;
+}
+#wheel-canvas {
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(255,60,95,0.4);
+}
+#hint-result {
+  background: rgba(255,215,0,0.08);
+  border: 1px solid #ffd700;
+  border-radius: 12px;
+  padding: 12px 20px;
+  margin: 8px 0;
+  max-width: 280px;
+  text-align: center;
+  color: #eaeaea;
+  font-size: 14px;
+  line-height: 1.5;
+}
+#hint-result.hidden { display: none; }
+#wheel-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
 /* ── HOME PAGE ─────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap');
 
