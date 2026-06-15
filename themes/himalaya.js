@@ -120,5 +120,38 @@ const theme_himalaya = {
         { x: 0.694, y: 0.522, r: 0.06 },
       ]
     },
+
+    //code for level 5 of himalaya theme
+   {
+      name: 'Snowy Summit',
+      difficulty: 'Hard',
+      timeLimit: 90,
+      differences: 9,
+      coinsPerFind: 10,
+      imgLeft:  'images/himalaya/himalaya_level5_first.png',
+      imgRight: 'images/himalaya/himalaya_level5_second.jpeg',
+      hints: [
+        'A head covering chose a different shade for the day',
+        'The words that guide travellers have shifted',
+        'A merchant\'s pride is no longer on display',
+        'The colourful prayers of the mountains fell silent',
+        'One of the great beasts of burden took a different path',
+        'Another heavy-footed wanderer chose to disappear',
+        'Light no longer passes through the same opening',
+        'A pillar of faith has quietly crumbled away',
+        'Someone who was standing here has simply ceased to exist',
+      ],
+      hotspots: [
+        { x: 0.217, y: 0.801, r: 0.03 },
+        { x: 0.803, y: 0.775, r: 0.03 },
+        { x: 0.319, y: 0.725, r: 0.03 },
+        { x: 0.350, y: 0.641, r: 0.03 },
+        { x: 0.531, y: 0.677, r: 0.03 },
+        { x: 0.593, y: 0.553, r: 0.03 },
+        { x: 0.634, y: 0.493, r: 0.03 },
+        { x: 0.680, y: 0.490, r: 0.03 },
+        { x: 0.591, y: 0.581, r: 0.03 },
+      ]
+    },
   ]
 };
