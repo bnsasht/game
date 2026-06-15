@@ -25,6 +25,25 @@ const theme_kathmandu = {
       { x: 0.739, y: 0.503, r: 0.06 },
     ]
     } 
+     ,{
+    name: 'Pashupatinath Temple',
+    difficulty: 'Medium',
+    timeLimit: 60,
+    differences: 6,
+    coinsPerFind: 5,
+
+    imgLeft: 'images/himalaya/kathmandu_level2_first.png',
+    imgRight: 'images/himalaya/kathmandu_level2_second.png',
+
+    hotspots: [
+    { x: 0.595, y: 0.317, r: 0.06 },
+    { x: 0.364, y: 0.417, r: 0.06 },
+    { x: 0.339, y: 0.558, r: 0.06 },
+    { x: 0.222, y: 0.525, r: 0.06 },
+    { x: 0.279, y: 0.756, r: 0.06 },
+    { x: 0.705, y: 0.721, r: 0.06 },
+    ]
+  }
    
   ]
 };
