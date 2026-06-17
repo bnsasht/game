@@ -84,6 +84,7 @@
       <span id="hud-coins">🪙 0</span>
     </div>
     <div id="powerups">
+      <button onclick="openHintWheel()">💡 Hint <small>(40🪙)</small></button>
       <button onclick="useFreeze()">❄️ Freeze <small>(100🪙)</small></button>
       <button onclick="useSkip()">⏭ Skip <small>(500🪙)</small></button>
       <button onclick="openShop()">+ Coins</button>
@@ -210,5 +211,28 @@
   <script src="themes/himalaya.js"></script>
   <script src="themes/genz.js"></script>
   <script src="script.js"></script>
+
+
+  <!-- HINT WHEEL OVERLAY -->
+<div id="hint-wheel-overlay" class="overlay hidden">
+  <div class="overlay-box" id="hint-wheel-box">
+    <h2>💡 Spin for a Hint</h2>
+    <p style="color:#888;font-size:13px">40 coins per spin · The wheel doesn't care what you've already found — it might send you somewhere new or somewhere you've already been. That's the gamble. 🎲</p>
+    
+    <div id="wheel-container">
+      <div id="wheel-pointer">▼</div>
+      <canvas id="wheel-canvas" width="280" height="280"></canvas>
+    </div>
+
+    <div id="hint-result" class="hidden">
+      <p id="hint-result-text"></p>
+    </div>
+
+    <div id="wheel-buttons">
+      <button class="btn-primary" id="spin-btn" onclick="spinWheel()">🎰 Spin! (40🪙)</button>
+      <button class="btn-secondary" onclick="closeHintWheel()">Close</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
