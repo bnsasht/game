@@ -649,3 +649,126 @@ renderWorlds();
 updateAllCoinDisplays();
 initHome();
 startAmbient();
+// --- MANE (PRAYER WHEEL) SPIN LOGIC ---
+
+isManeSpinning = false;
+const MANE_SPIN_COST = 56;
+
+// The official matched reward array dataset
+const maneRewards = [
+  { text: "+20", sub: "Coins", type: "coins", val: 20 },
+  { text: "+50", sub: "Coins", type: "coins", val: 50 },
+  { text: "+100", sub: "Coins", type: "coins", val: 100 },
+  { text: "Try Again", sub: "Bonus", type: "event", val: 0 },
+  { text: "-30", sub: "Coins", type: "coins", val: -30 },
+  { text: "-50", sub: "Coins", type: "coins", val: -50 },
+  { text: "+30", sub: "Coins", type: "coins", val: 30 }
+];
+
+// Initialize carousel items on bootup load sequence
+function initManeCarousel() {
+  const track = document.getElementById('carousel-track-scroll');
+  if (!track) return;
+  
+  track.innerHTML = '';
+  // Populate the strip sequence
+  maneRewards.forEach(reward => {
+    const node = document.createElement('div');
+    node.className = 'carousel-node';
+    node.innerHTML = `<div>${reward.text}</div><small>${reward.sub}</small>`;
+    track.appendChild(node);
+  });
+}
+
+function openManeModal() {
+  document.getElementById('mane-overlay').classList.remove('hidden');
+  document.getElementById('mane-result-container').classList.add('hidden');
+  initManeCarousel(); // Build clean track nodes layout
+  updateAllCoinDisplays(); 
+}
+
+function closeManeModal() {
+  if (isManeSpinning) return; 
+  document.getElementById('mane-overlay').classList.add('hidden');
+}
+
+function spinMane() {
+  if (isManeSpinning) return;
+
+  if (coins < MANE_SPIN_COST) {
+    alert("❌ Not enough coins! You need 56 coins to spin the Mane.");
+    return;
+  }
+
+  // Deduct asset cost allocation safely
+  coins -= MANE_SPIN_COST;
+  updateAllCoinDisplays();
+  saveProgress();
+
+  isManeSpinning = true;
+  
+  const cylinder = document.getElementById('mane-cylinder');
+  const track = document.getElementById('carousel-track-scroll');
+  const resultContainer = document.getElementById('mane-result-container');
+  
+  if (resultContainer) resultContainer.classList.add('hidden');
+  if (cylinder) cylinder.classList.add('wheel-spinning-fast');
+
+  // Choose the item index before starting execution loops
+  const winningIndex = Math.floor(Math.random() * maneRewards.length);
+  const targetReward = maneRewards[winningIndex];
+
+  let ticks = 0;
+  const maxTicks = 24;
+  
+  // High-speed carousel blurring execution loops
+  const simulationInterval = setInterval(() => {
+    ticks++;
+    // Jitter slide offsets to look dynamic
+    const randomShift = Math.floor(Math.random() * 80) - 40;
+    if (track) track.style.transform = `translateX(calc(-50% + ${randomShift}px))`;
+    
+    if (ticks >= maxTicks) {
+      clearInterval(simulationInterval);
+      
+      // Stop velocity shifts
+      if (cylinder) cylinder.classList.remove('wheel-spinning-fast');
+      
+      // PERFECT SNAP FIX: Calculate the exact horizontal offset shift 
+      // required to align the chosen index directly inside the golden pointer frame
+      const nodeWidth = 90; // Matches your tracking node dimension width profiles
+      const centerIndexOffset = Math.floor(maneRewards.length / 2);
+      const shiftSteps = winningIndex - centerIndexOffset;
+      const finalPixelAlignment = -(shiftSteps * nodeWidth);
+      
+      // Hard snap execution onto screen display layer frames
+      if (track) {
+        track.style.transform = `translateX(calc(-50% + ${finalPixelAlignment}px))`;
+      }
+
+      // Render the matching textual banner payout information
+      if (resultContainer) {
+        const rewardLabel = targetReward.type === "coins" 
+          ? `${targetReward.text} ${targetReward.sub}` 
+          : `${targetReward.text} ${targetReward.sub}`;
+          
+        document.getElementById('mane-reward-text').innerText = "Blessed With: " + rewardLabel;
+        resultContainer.classList.remove('hidden');
+      }
+
+      // Disburse financial assets safely
+      applyManeReward(targetReward);
+      isManeSpinning = false;
+    }
+  }, 100);
+}
+
+function applyManeReward(rewardItem) {
+  if (rewardItem.type === "coins") {
+    coins += rewardItem.val;
+  } else {
+    console.log(`${rewardItem.text} balance item applied directly to inventory registers.`);
+  }
+  updateAllCoinDisplays();
+  saveProgress();
+}
