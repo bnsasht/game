@@ -801,8 +801,9 @@ body {
 
 .overlay.hidden {
   display: none !important;
+}
 
-  @keyframes confettiFall {
+@keyframes confettiFall {
   0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
   100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }
@@ -810,4 +811,19 @@ body {
   0%   { transform: translateY(0); opacity: 1; }
   100% { transform: translateY(110vh); opacity: 0.2; }
 }
+
+/*to make the mane spin responsive and fit any screen*/
+@media (max-height: 800px) {
+  .mane-box-premium {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .mane-visual-card {
+    height: 260px;
+  }
+
+  .mane-wheel-assembly {
+    transform: scale(0.85);
+  }
 }
