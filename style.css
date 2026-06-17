@@ -496,6 +496,352 @@ body {
 .world-chip:hover { color:#f0eeea; }
 .version { position:absolute; bottom:12px; right:20px; font-size:10px;
   color:#6b6880; letter-spacing:2px; opacity:0.5; z-index:10; }
+/* --- MANE SPIN COMPONENT STYLES --- */
+/* --- PREMIUM MANE OVERLAY INTERFACE (image_ae9a03.jpg Style) --- */
+/* --- PREMIUM MANE OVERLAY INTERFACE (image_ae9a03.jpg Style) --- */
+
+.mane-box-premium {
+  background: radial-gradient(circle at center, #1b162e 0%, #0a0714 100%);
+  border: 1px solid rgba(234, 196, 107, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.9);
+  max-width: 480px;
+  width: 92%;
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
+  margin: auto;
+}
+
+/* Perfect Flexbox Alignment: Back Button Left, Title Centered */
+/* Perfect Absolute Centering Setup */
+.mane-header-nav {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px; 
+  padding: 0 5px;
+  position: relative; /* Crucial for absolute positioning context */
+  width: 100%;
+  height: 40px; /* Gives a clear, fixed height for calculation */
+}
+
+/* Forces the title to take the absolute horizontal center of the modal */
+.mane-header-nav h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  text-align: center;
+  z-index: 1;
+}
+
+/* Keeps the back button cleanly pinned to the left edge */
+.mane-nav-back {
+  position: absolute;
+  left: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #a5a7b3;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10; /* Ensures it sits above everything to stay clickable */
+  white-space: nowrap;
+}
+
+.mane-nav-back:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-50%) translateX(-2px); /* Maintains centering on hover transition */
+}
+
+.mane-header-nav h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Custom Back Button Pinned Perfectly Left */
+.mane-nav-back {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #a5a7b3;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+  white-space: nowrap;
+}
+
+.mane-nav-back:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(-2px);
+}
+
+/* Invisible Mirror Spacer to force perfect center positioning for h2 */
+.mane-nav-spacer {
+  width: 72px; /* Exactly mirrors the programmatic bounding box width of the back button */
+  height: 1px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Visual Card Inner Frame Wrapper */
+.mane-visual-card {
+  border: 1px solid rgba(234, 196, 107, 0.35);
+  border-radius: 12px;
+  height: 380px;
+  background: radial-gradient(circle at center, #17112c 0%, #0d081b 100%);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+/* Layered Heavy 3D Metallic Prayer Wheel Cylinder */
+.mane-wheel-assembly {
+  width: 260px;
+  height: 320px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: filter 0.1s ease;
+}
+
+.wheel-metallic-body {
+  width: 220px;
+  height: 240px;
+  background: linear-gradient(90deg, #1d150b 0%, #463515 20%, #917337 50%, #463515 80%, #1d150b 100%);
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.85);
+  position: relative;
+}
+
+/* Faded Ancient Script styling inside brass barrel */
+.tibetan-script-bg {
+  width: 100%;
+  height: 100%;
+  opacity: 0.15;
+  font-size: 5.5rem;
+  color: #fae29c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  letter-spacing: 12px;
+  user-select: none;
+}
+
+/* Heavy Polished Brass Edge Caps */
+.wheel-ornament-top, .wheel-ornament-bottom {
+  width: 236px;
+  height: 24px;
+  background: linear-gradient(90deg, #38290f, #a3813b, #fce092, #a3813b, #38290f);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  border-radius: 4px;
+}
+.wheel-ornament-top { border-bottom: 2px solid #1a1205; }
+.wheel-ornament-bottom { border-top: 2px solid #1a1205; }
+
+/* Horizontal Transparent Tracking Selection Strip */
+.selector-ribbon-belt {
+  position: absolute;
+  width: 100%;
+  height: 72px;
+  background: linear-gradient(180deg, rgba(22,18,33,0.94) 0%, rgba(11,8,18,0.97) 50%, rgba(22,18,33,0.94) 100%);
+  border-top: 2px solid #524220;
+  border-bottom: 2px solid #524220;
+  box-shadow: 0 6px 25px rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  z-index: 3;
+}
+
+/* Scrolling Ribbon Content Track */
+.carousel-track {
+  display: flex;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.carousel-node {
+  display: inline-block;
+  width: 90px;
+  text-align: center;
+  color: #8c8f9e;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.2;
+  user-select: none;
+}
+.carousel-node div {
+  font-size: 1rem;
+  font-weight: 500;
+}
+.carousel-node small {
+  font-size: 0.75rem;
+  opacity: 0.65;
+}
+
+/* Golden Trapezoid Target Highlight Framing */
+.premium-pointer-frame {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 116px;
+  height: 86px;
+  border: 2px solid #ebd086;
+  background: rgba(26, 21, 41, 0.35);
+  box-shadow: 0 0 25px rgba(235, 208, 134, 0.25), inset 0 0 12px rgba(0,0,0,0.6);
+  border-radius: 14px;
+  pointer-events: none;
+  z-index: 5;
+  clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%);
+}
+
+.pointer-emblem {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 15px;
+  color: #ebd086;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.9);
+  z-index: 6;
+}
+.pointer-emblem.top { top: 1px; }
+.pointer-emblem.bottom { bottom: 1px; transform: translateX(-50%) rotate(180deg); }
+
+/* High-Velocity Motion Blur Simulation Hooks */
+.wheel-spinning-fast {
+  animation: visualBlurShift 0.1s linear infinite;
+}
+@keyframes visualBlurShift {
+  0% { filter: blur(1px) brightness(1.1); }
+  50% { filter: blur(4px) brightness(1.25); }
+  100% { filter: blur(1px) brightness(1.1); }
+}
+
+/* Dynamic Reward Win Display Banner */
+.mane-result {
+  margin: 12px auto;
+  padding: 10px 20px;
+  background: rgba(0, 255, 204, 0.05);
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  border-radius: 8px;
+  max-width: 280px;
+  text-align: center;
+}
+.reward-text {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #00ffcc;
+  text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+}
+
+/* Info Subtext Bubble styling */
+.mane-instruction-bubble {
+  background: rgba(22, 19, 36, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: #a5a7b3;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  text-align: center;
+  max-width: 340px;
+  margin: 10px auto;
+}
+
+/* Ornate Grand Golden Oval Button Setup */
+.mane-action-container {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-spin-premium {
+  background: linear-gradient(180deg, #f7df9d 0%, #ca9e3b 45%, #94701d 100%);
+  border: 1px solid #574317;
+  padding: 12px 55px;
+  border-radius: 35px;
+  color: #1e1502;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  box-shadow: 0 5px 16px rgba(148, 112, 29, 0.45), inset 0 1px 0 rgba(255,255,255,0.4);
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.btn-spin-premium:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+  box-shadow: 0 7px 20px rgba(148, 112, 29, 0.6);
+}
+
+.btn-spin-premium:active {
+  transform: translateY(1px);
+}
+
+.btn-spin-premium .arrow-icon {
+  font-size: 1.05rem;
+  color: #3d2a03;
+}
+
+/* Header Trigger Button from World Map Header view */
+.btn-mane-header {
+  background: linear-gradient(135deg, #f3d689 0%, #b88f32 100%);
+  color: #0e0b16;
+  border: 1px solid #4d3a14;
+  padding: 8px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(184, 143, 50, 0.25);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-mane-header:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+  box-shadow: 0 6px 16px rgba(184, 143, 50, 0.4);
+}
+
+.overlay.hidden {
+  display: none !important;
 
   @keyframes confettiFall {
   0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
@@ -504,4 +850,5 @@ body {
 @keyframes rainFall {
   0%   { transform: translateY(0); opacity: 1; }
   100% { transform: translateY(110vh); opacity: 0.2; }
+}
 }
