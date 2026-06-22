@@ -969,6 +969,7 @@ renderWorlds();
 updateAllCoinDisplays();
 initHome();
 startAmbient();
+trackPlayer();
 // --- MANE (PRAYER WHEEL) SPIN LOGIC ---
 
 isManeSpinning = false;
@@ -1078,7 +1079,7 @@ function spinMane() {
 
       // Disburse financial assets safely
       applyManeReward(targetReward);
-      isManeSpinning = false;
+      let isManeSpinning = false;
     }
   }, 100);
 }
