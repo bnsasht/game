@@ -1004,12 +1004,12 @@ updateAllCoinDisplays();
 initHome();
 startAmbient();
 trackPlayer();
-// MANE (PRAYER WHEEL) SPIN LOGIC
+/// MANE (PRAYER WHEEL) SPIN LOGIC
+// --- MANE SPIN MODAL CONTROLLER ---
 
 isManeSpinning = false;
 const MANE_SPIN_COST = 56;
 
-// The official matched reward array dataset
 const maneRewards = [
   { text: "+20", sub: "Coins", type: "coins", val: 20 },
   { text: "+50", sub: "Coins", type: "coins", val: 50 },
@@ -1020,13 +1020,10 @@ const maneRewards = [
   { text: "+30", sub: "Coins", type: "coins", val: 30 }
 ];
 
-// Initialize carousel items on bootup load sequence
 function initManeCarousel() {
   const track = document.getElementById('carousel-track-scroll');
   if (!track) return;
-  
   track.innerHTML = '';
-  // Populate the strip sequence
   maneRewards.forEach(reward => {
     const node = document.createElement('div');
     node.className = 'carousel-node';
@@ -1038,16 +1035,53 @@ function initManeCarousel() {
 function openManeModal() {
   document.getElementById('mane-overlay').classList.remove('hidden');
   document.getElementById('mane-result-container').classList.add('hidden');
-  initManeCarousel(); // Build clean track nodes layout
-  updateAllCoinDisplays(); 
+  document.getElementById('mane-reward-text').innerText = "";
+  const track = document.getElementById('carousel-track-scroll');
+  if (track) track.style.transform = "translateX(-50%)";
+  initManeCarousel();
+  updateAllCoinDisplays();
 }
-
 
 function closeManeModal() {
   document.getElementById('mane-overlay').classList.add('hidden');
-  isManeSpinning = false; 
+  document.getElementById('mane-result-container').classList.add('hidden');
+  document.getElementById('mane-reward-text').innerText = "";
+  isManeSpinning = false;
+  if (!ambientNode) startAmbient();
 }
 
+function playManeSpin() {
+  const ac = getAudio();
+  let tick = 0;
+  const maxTicks = 24;
+  function nextTick() {
+    if (tick >= maxTicks) {
+      [1100, 1650, 2200].forEach((f, i) => {
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.type = 'sine'; o.connect(g); g.connect(ac.destination);
+        o.frequency.value = f;
+        const t = ac.currentTime + i * 0.13;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(0.4, t + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 1.8);
+        o.start(t); o.stop(t + 2);
+      });
+      return;
+    }
+    const progress = tick / maxTicks;
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'triangle';
+    o.frequency.value = 180 + progress * 60;
+    o.connect(g); g.connect(ac.destination);
+    g.gain.setValueAtTime(0.3, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.06);
+    o.start(ac.currentTime); o.stop(ac.currentTime + 0.07);
+    tick++;
+    const delay = Math.max(40, 120 - progress * 80);
+    setTimeout(nextTick, delay);
+  }
+  nextTick();
+}
 
 function spinMane() {
   if (isManeSpinning) return;
@@ -1057,65 +1091,51 @@ function spinMane() {
     return;
   }
 
-  // Deduct asset cost allocation safely
   coins -= MANE_SPIN_COST;
   updateAllCoinDisplays();
   saveProgress();
 
   isManeSpinning = true;
-  
+  stopAmbient();
+  playManeSpin();
+
   const cylinder = document.getElementById('mane-cylinder');
   const track = document.getElementById('carousel-track-scroll');
   const resultContainer = document.getElementById('mane-result-container');
-  
+
   if (resultContainer) resultContainer.classList.add('hidden');
   if (cylinder) cylinder.classList.add('wheel-spinning-fast');
 
-  // Choose the item index before starting execution loops
   const winningIndex = Math.floor(Math.random() * maneRewards.length);
   const targetReward = maneRewards[winningIndex];
 
   let ticks = 0;
   const maxTicks = 24;
-  
-  // High-speed carousel blurring execution loops
+
   const simulationInterval = setInterval(() => {
     ticks++;
-    // Jitter slide offsets to look dynamic
     const randomShift = Math.floor(Math.random() * 80) - 40;
     if (track) track.style.transform = `translateX(calc(-50% + ${randomShift}px))`;
-    
+
     if (ticks >= maxTicks) {
       clearInterval(simulationInterval);
-      
-      // Stop velocity shifts
       if (cylinder) cylinder.classList.remove('wheel-spinning-fast');
-      
-    
-      
-      const nodeWidth = 90; 
+
+      const nodeWidth = 90;
       const centerIndexOffset = Math.floor(maneRewards.length / 2);
       const shiftSteps = winningIndex - centerIndexOffset;
       const finalPixelAlignment = -(shiftSteps * nodeWidth);
-      
-      // Hard snap execution onto screen display layer frames
-      if (track) {
-        track.style.transform = `translateX(calc(-50% + ${finalPixelAlignment}px))`;
-      }
+      if (track) track.style.transform = `translateX(calc(-50% + ${finalPixelAlignment}px))`;
 
-      // Render the matching textual banner payout information
       if (resultContainer) {
-        const rewardLabel = targetReward.type === "coins" 
-          ? `${targetReward.text} ${targetReward.sub}` 
-          : `${targetReward.text} ${targetReward.sub}`;
-          
+        const rewardLabel = `${targetReward.text} ${targetReward.sub}`;
         document.getElementById('mane-reward-text').innerText = "Blessed With: " + rewardLabel;
         resultContainer.classList.remove('hidden');
       }
 
-      // Disburse financial assets safely
       applyManeReward(targetReward);
       isManeSpinning = false;
+      setTimeout(() => startAmbient(), 2500);
     }
   }, 100);
 }
