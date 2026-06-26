@@ -1115,7 +1115,7 @@ function spinMane() {
 
       // Disburse financial assets safely
       applyManeReward(targetReward);
-      let isManeSpinning = false;
+      isManeSpinning = false;
     }
   }, 100);
 }
