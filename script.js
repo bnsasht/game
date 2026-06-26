@@ -1008,10 +1008,12 @@ function openManeModal() {
   updateAllCoinDisplays(); 
 }
 
+
 function closeManeModal() {
   document.getElementById('mane-overlay').classList.add('hidden');
   isManeSpinning = false; 
 }
+
 
 function spinMane() {
   if (isManeSpinning) return;
