@@ -43,7 +43,7 @@ const theme_genz = {
       differences: 6,
       coinsPerFind: 5,
       imgLeft:  'images/himalaya/genz_level2_first.png',
-      imgRight: 'images/himalaya/genz_level2_second.png',
+      imgRight: 'images/himalaya/genz_level2_second.jpeg',
       hints: [
       'A golden border defines the horizon differently',
       'The icon above has gained a new star in the sky',
@@ -70,8 +70,8 @@ const theme_genz = {
       timeLimit: 70,
       differences: 7,
       coinsPerFind: 7,
-      imgLeft:  'images/himalaya/genz_level3_first.png',
-      imgRight: 'images/himalaya/genz_level3_second.png',
+      imgLeft:  'images/himalaya/genz_level3_first.jpeg',
+      imgRight: 'images/himalaya/genz_level3_second.jpeg',
       hints: [
         'The flag on the horizon has wandered to a new post',
         'A name has been carved into the stone above the pillars',
