@@ -6,6 +6,8 @@
   <title>EyeQ</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="howtoplay.css" />
+<link rel="stylesheet" href="checkout.css" />
 </head>
 <body>
 
@@ -39,6 +41,7 @@
     <div class="coin-badge"><span>🪙</span><span id="home-coins">0</span> coins</div>
     <div class="btn-group">
       <button class="btn-play" onclick="playClick(); showScreen('screen-worlds')">PLAY</button>
+      <button class="btn-shop" onclick="playClick(); showScreen('screen-howtoplay')">📖 How to Play</button>
       <button class="btn-shop" onclick="playClick(); openShop()">🪙 Buy Coins</button>
     </div>
   </div>
@@ -80,6 +83,7 @@
   <div id="screen-game" class="screen">
     <div id="hud">
       <span id="hud-level">Level 1</span>
+      <span id="hud-streak"></span>
       <span id="hud-timer">⏱ 60s</span>
       <span id="hud-coins">🪙 0</span>
     </div>
@@ -149,6 +153,53 @@
     </div>
   </div>
 
+  <!-- FAKE PAYMENT CHECKOUT -->
+<div id="checkout-overlay" class="overlay hidden">
+  <div class="overlay-box" id="checkout-box">
+
+    <h2>🛒 Checkout</h2>
+
+    <div class="checkout-summary">
+      <div class="checkout-row">
+        <span>Item</span>
+        <span id="checkout-item-name">—</span>
+      </div>
+      <div class="checkout-row">
+        <span>Price</span>
+        <span id="checkout-item-price">—</span>
+      </div>
+      <div class="checkout-row total">
+        <span>Total</span>
+        <span id="checkout-total">—</span>
+      </div>
+    </div>
+
+    <div class="checkout-form">
+      <label>Card Number</label>
+      <input type="text" placeholder="4242 4242 4242 4242" maxlength="19" id="checkout-card" />
+
+      <div class="checkout-form-row">
+        <div>
+          <label>Expiry</label>
+          <input type="text" placeholder="MM/YY" maxlength="5" id="checkout-expiry" />
+        </div>
+        <div>
+          <label>CVV</label>
+          <input type="text" placeholder="123" maxlength="3" id="checkout-cvv" />
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-gold" id="checkout-pay-btn" onclick="processFakePayment()">
+      🔒 Pay Securely
+    </button>
+    <button class="btn-secondary" onclick="closeCheckout()">Cancel</button>
+
+    <p class="checkout-note">This is a simulated transaction. No real payment will be processed.</p>
+
+  </div>
+</div>
+
   <!-- UNLOCK OVERLAY -->
   <div id="unlock-overlay" class="overlay hidden">
     <div class="overlay-box">
@@ -213,6 +264,7 @@
   <script src="themes/festivals.js"></script>
   <script src="themes/himalaya.js"></script>
   <script src="themes/genz.js"></script>
+  <script src="checkout.js"></script>
   <script src="script.js"></script>
 
 
@@ -236,6 +288,16 @@
       <button class="btn-secondary" onclick="closeHintWheel()">Close</button>
     </div>
   </div>
+</div>
+
+<!-- HOW TO PLAY -->
+<div id="screen-howtoplay" class="screen">
+  <div class="screen-header">
+    <button class="btn-back" onclick="showScreen('screen-home')">← Back</button>
+    <h2>How to Play</h2>
+    <div></div>
+  </div>
+  <div id="howtoplay-content"></div>
 </div>
 </body>
 </html>

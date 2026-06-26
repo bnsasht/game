@@ -178,6 +178,21 @@ function playHint() {
   });
 }
 
+function playStreak() {
+  const ac = getAudio();
+  [700, 900, 1100].forEach((f, i) => {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'triangle';
+    o.connect(g); g.connect(ac.destination);
+    o.frequency.value = f;
+    const t = ac.currentTime + i * 0.07;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.2, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    o.start(t); o.stop(t + 0.18);
+  });
+}
+
 // ── VOICE & AMBIENT SOUNDS ─────────────────────
 const correctPhrases = ['Correct!', 'You got it!', 'Nice find!', 'Great eye!', 'Spot on!'];
 const wrongPhrases   = ['Nope!', 'Try again!', 'Not there!', 'Keep looking!'];
@@ -304,6 +319,7 @@ let timerFrozen = false;
 let differencesFound = 0;
 let activeLevel = null;
 let hintIndex = 0;
+let streak = 0;
 
 // ── WORLD & LEVEL DATA ─────────────────────────
 const worlds = [
@@ -352,12 +368,22 @@ function loadProgress() {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+   if (id === 'screen-howtoplay') loadHowToPlay();
   updateAllCoinDisplays();
-  if (id === 'screen-home' || id === 'screen-worlds' || id === 'screen-levels') {
+  if (id === 'screen-home' || id === 'screen-worlds' || id === 'screen-levels' || id === 'screen-howtoplay') {
     startAmbient();
   } else {
     stopAmbient();
   }
+}
+
+//how to play screen function
+function loadHowToPlay() {
+  const container = document.getElementById('howtoplay-content');
+  if (container.innerHTML.trim() !== '') return; // already loaded
+  fetch('howtoplay.html')
+    .then(res => res.text())
+    .then(html => container.innerHTML = html);
 }
 
 function updateAllCoinDisplays() {
@@ -444,6 +470,7 @@ function startLevel(wi, li) {
   timerSeconds = lvl.timeLimit;
   timerFrozen = false;
   hintIndex = 0;
+  streak = 0;
 
   lvl.hotspots.forEach(h => {
   h.found = false;
@@ -521,14 +548,26 @@ function handleClick(pctX, pctY, rawX, rawY) {
     if (dist <= spot.r) {
       spot.found = true;
       differencesFound++;
-       if (!spot.coinEarned) {
-         coins += activeLevel.coinsPerFind;
-         spot.coinEarned = true;
+      streak++;
+      document.getElementById('hud-streak').textContent = streak >= 3 ? `🔥 ${streak}` : '';
+
+      const multiplier = streak >= 5 ? 3 : streak >= 3 ? 2 : 1;
+
+      if (!spot.coinEarned) {
+        coins += activeLevel.coinsPerFind * multiplier;
+        spot.coinEarned = true;
       }
       updateAllCoinDisplays();
       updateFoundLabel();
       placeMarker(spot);
-      showFeedback('✅', rawX, rawY);
+
+      if (multiplier > 1) {
+        showFeedback(`✅ x${multiplier}`, rawX, rawY);
+        playStreak();
+      } else {
+        showFeedback('✅', rawX, rawY);
+      }
+
       playFind();
       speakCorrect();
       saveProgress();
@@ -541,14 +580,16 @@ function handleClick(pctX, pctY, rawX, rawY) {
       }
     }
   });
- if (!hit) {
-  coins = Math.max(0, coins - 2);
-  updateAllCoinDisplays();
-  saveProgress();
-  showFeedback('❌ -2🪙', rawX, rawY);
-  playWrong();
-  speakWrong();
-}
+    if (!hit) {
+      streak = 0;
+      document.getElementById('hud-streak').textContent = '';
+      coins = Math.max(0, coins - 2);
+      updateAllCoinDisplays();
+      saveProgress();
+      showFeedback('❌ -2🪙', rawX, rawY);
+      playWrong();
+      speakWrong();
+    }
 }
 
 function clearMarkers() {
@@ -634,12 +675,8 @@ function closeShop() {
   document.getElementById('shop-overlay').classList.add('hidden');
 }
 function buyCoin(amount, price) {
-  if (confirm(`Pay $${price} for ${amount} coins?\n(This is a simulated purchase)`)) {
-    coins += amount;
-    updateAllCoinDisplays();
-    saveProgress();
-    closeShop();
-  }
+  pendingPurchase = { type: 'coins', amount, price };
+  openCheckout(`${amount} Coins`, price);
 }
 
 // ── UNLOCK ─────────────────────────────────────
@@ -675,12 +712,9 @@ function unlockWithCoins() {
 }
 
 function unlockWithMoney() {
-  if (confirm(`Buy ${worlds[pendingUnlockIndex].name} for ${worlds[pendingUnlockIndex].price}?`)) {
-    worlds[pendingUnlockIndex].unlocked = true;
-    saveProgress();
-    closeUnlock();
-    renderWorlds();
-  }
+  const world = worlds[pendingUnlockIndex];
+  pendingPurchase = { type: 'world', worldIndex: pendingUnlockIndex, price: world.price };
+  openCheckout(world.name, world.price.replace('$', ''));
 }
 
 // ── HELPERS ────────────────────────────────────
