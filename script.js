@@ -963,14 +963,14 @@ function playWheelWin() {
   });
 }
 
-// ── INIT ───────────────────────────────────────
+// ── INIT ──
 loadProgress();
 renderWorlds();
 updateAllCoinDisplays();
 initHome();
 startAmbient();
 trackPlayer();
-// --- MANE (PRAYER WHEEL) SPIN LOGIC ---
+// MANE (PRAYER WHEEL) SPIN LOGIC
 
 isManeSpinning = false;
 const MANE_SPIN_COST = 56;
@@ -1009,8 +1009,8 @@ function openManeModal() {
 }
 
 function closeManeModal() {
-  if (isManeSpinning) return; 
   document.getElementById('mane-overlay').classList.add('hidden');
+  isManeSpinning = false; 
 }
 
 function spinMane() {
@@ -1055,9 +1055,9 @@ function spinMane() {
       // Stop velocity shifts
       if (cylinder) cylinder.classList.remove('wheel-spinning-fast');
       
-      // PERFECT SNAP FIX: Calculate the exact horizontal offset shift 
-      // required to align the chosen index directly inside the golden pointer frame
-      const nodeWidth = 90; // Matches your tracking node dimension width profiles
+    
+      
+      const nodeWidth = 90; 
       const centerIndexOffset = Math.floor(maneRewards.length / 2);
       const shiftSteps = winningIndex - centerIndexOffset;
       const finalPixelAlignment = -(shiftSteps * nodeWidth);
